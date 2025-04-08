@@ -37,16 +37,7 @@ extract_advisory_text <- function(detail_list) {
 }
 
 
-api_config <- list(
-  url = "https://api.deepseek.com/v1/chat/completions",
-  model = "deepseek-chat",
-  temperature = 0.1,
-  max_tokens = 1000,
-  delay = 1,
-  api_key= "sk-4c49f4e440724c41906d8d1ebe02c1ed"  
-)
-
-get_advisory_explanation <- function(text) {
+get_advisory_explanation <- function(text, api_config) {
   
   # System prompt with clear instructions
   system_prompt <- paste(
@@ -188,6 +179,14 @@ ui <- fluidPage(
     ),
     
     tabPanel("Understand by Deepseek",
+             
+             fluidRow(
+               column(
+                 width = 12,
+                 passwordInput("user_api_key", "Enter your Deepseek API Key:", placeholder = "sk-XXXX...")
+               )
+             ),
+             
              fluidRow(
                column(
                  width = 6,
@@ -347,8 +346,22 @@ server <- function(input, output, session) {
   })
   
   
+  
+  api_config <- eventReactive(input$http_submit, {
+    list(
+      url = "https://api.deepseek.com/v1/chat/completions",
+      model = "deepseek-chat",
+      temperature = 0.1,
+      max_tokens = 1000,
+      delay = 1,
+      api_key = input$user_api_key  # dynamically set by user input
+    )
+  })
+  
+  
+
   observeEvent(input$http_submit, {
-    req(input$http_date)
+    req(input$http_date,  api_config()$api_key)
     
     # Simulate HTTP GET call
     query_url <- get_faa_advisory(input$http_date)
@@ -395,7 +408,7 @@ server <- function(input, output, session) {
         extract_advisory_text()
       
      output$translation_output <- renderUI({
-        html_output <- get_advisory_explanation(df)
+        html_output <- get_advisory_explanation(df, api_config())
 
         HTML(html_output)
         })

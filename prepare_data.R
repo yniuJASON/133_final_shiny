@@ -8,9 +8,13 @@ source("Extract_data_from_web.R")
 source("GPT_classifier.R", echo=T)
 source("utility_tables.R")
 
+
+### Step 1 --- Data acquisition. -- Aim: get tables of advisories for each day -------------------
+
 #Prepate data 
 #Date range
 dates <- seq(as.Date("2025-01-01"), as.Date("2025-04-01"), by="days")
+
 
 # Fetch advisory content for each date
 faa_data <- dates %>%
@@ -24,6 +28,12 @@ faa_data <- dates %>%
   }) 
 
 print("Step 1 - Complete")
+
+### Step 1 --- Done
+
+
+### Step 2 --- Data acquisition. -- Aim: get links of details of each advisories for each day -------------------
+
 
 faa_data <- faa_data %>% 
   map(function(http_content) {
@@ -63,6 +73,12 @@ print("Step 2 - Complete")
 
 saveRDS(faa_data, "faa_data_checkpoint_1.rds")
 
+### Step 2 --- Done
+
+### Step 3 --- Data wrangling. --------------
+### -- Aim:  -------------------
+###.    1. convert from html response to dataframe with nested lists
+###     2. Use Deepseek to analyze the advisory content and generate a class label for each advisory, refer to "GPT_classifier.R"
 
 pb <- progress_bar$new(
   format = "  Scraping [:bar] :percent eta: :eta",
@@ -116,6 +132,12 @@ saveRDS(faa_data, "faa_data_checkpoint_2.rds")
 print("Step 3 - Complete")
 
 faa_data <- readRDS("faa_data_checkpoint_2.rds")
+
+### Step 3 --- Done
+
+### Step 4 --- Data wrangling. -------------- Aim: get effective time of each advisory
+
+
 
 faa_data <- faa_data %>% 
   mutate(

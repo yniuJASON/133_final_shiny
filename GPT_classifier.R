@@ -10,7 +10,7 @@ api_config <- list(
   temperature = 0.1,
   max_tokens = 50,
   delay = 1,
-  api_key= "sk-4c49f4e440724c41906d8d1ebe02c1ed"  
+  api_key= "Crossed_out_available_in_the_README_file"  
 )
 # Function to extract text from nested list structure
 extract_advisory_text <- function(detail_list) {
